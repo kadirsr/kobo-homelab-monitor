@@ -1,10 +1,14 @@
-# Kobo Homelab Monitor
+# Kobo Homelab Monitor & WiZ Room Control
 
-An e-ink friendly homelab dashboard designed for Kobo's older WebKit browser. It displays host utilization, Prometheus target health and Docker inventory, and can control allow-listed WiZ lights over the local network.
+Turn a Kobo e-reader into a distraction-free operations and room-control panel. The project combines an e-ink friendly homelab dashboard with local Philips WiZ light control, all served by an Ubuntu host and designed for Kobo's older WebKit browser.
+
+Use the monitoring view to check the server without opening a laptop, then switch to the room-mode view while reading. WiZ commands stay on the local network and do not require the cloud after the bulbs have joined Wi-Fi and local communication has been enabled.
 
 ![Kobo Homelab Monitor preview](docs/preview.png)
 
-## Features
+## Two experiences, one Kobo
+
+### Homelab monitoring
 
 - CPU, memory and disk utilization
 - Prometheus target summary
@@ -14,8 +18,28 @@ An e-ink friendly homelab dashboard designed for Kobo's older WebKit browser. It
 - Automatic refresh every 60 seconds
 - ES5 and XMLHttpRequest; no frontend build step or external assets
 - Read-only interface with no container control actions
-- Local WiZ light status, power, brightness, white temperature and reading presets
+
+### Philips WiZ room control
+
+- Live reachability and state for two allow-listed WiZ lights
+- **Reading:** warm white at 2700K and 45% brightness
+- **Sleep:** turns both lights off
+- **Work:** neutral white at 4000K and 80% brightness
+- Three large e-ink friendly choices instead of sliders and dense controls
+- Direct local UDP communication with the bulbs on port `38899`
 - WiZ bridge has no published host port and accepts only allow-listed commands and devices
+
+## Architecture
+
+```text
+Kobo browser
+   |
+   +-- Homelab dashboard --> Nginx --> health endpoint / JSON snapshots
+   |
+   +-- Room modes ---------> Nginx --> Python WiZ bridge --> UDP 38899 --> WiZ lights
+
+Ubuntu + Docker Compose host
+```
 
 ## Requirements
 
@@ -37,6 +61,8 @@ docker compose up -d
 ```
 
 `WIZ_LIGHTS` stays in the ignored `.env` file. Do not commit real device addresses.
+
+In the WiZ app, enable **Local communication** before starting the bridge. The official app may still be needed for the initial Wi-Fi onboarding, but normal Kobo controls are sent directly over the LAN.
 
 Refresh host and container metadata once per minute:
 
