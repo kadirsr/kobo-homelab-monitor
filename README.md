@@ -6,7 +6,9 @@ Use the monitoring view to check the server without opening a laptop, then switc
 
 ![Kobo Homelab Monitor preview](docs/preview.png)
 
-## Kobo and PC interfaces
+## Two experiences, one Kobo
+
+Looking for desktop light controls? [WiZ Studio](https://github.com/kadirsr/wiz-studio) is a standalone PC project.
 
 ### Homelab monitoring
 
@@ -28,17 +30,6 @@ Use the monitoring view to check the server without opening a laptop, then switc
 - Three large e-ink friendly choices instead of sliders and dense controls
 - Direct local UDP communication with the bulbs on port `38899`
 - WiZ bridge has no published host port and accepts only allow-listed commands and devices
-
-### WiZ Studio (PC)
-
-On a modern desktop browser, open `http://<dashboard-host>:8786/lights-desktop.html` on your trusted LAN (use your configured port if different). WiZ Studio uses the same local WiZ bridge as the Kobo page:
-
-- Control either bulb individually or both together.
-- Turn lights on or off, set brightness from 10–100%, and adjust white temperature from 2200–6500 K.
-- Pick a preset or custom RGB color on compatible bulbs, or apply the Reading, Night or Work preset.
-- Check live bulb status; it refreshes every 10 seconds.
-
-The Kobo page at `/lights.html` keeps its three simple room modes and does not require a modern browser.
 
 ## Architecture
 

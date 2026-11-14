@@ -92,17 +92,12 @@ def command_params(action, value):
         return {"state": value == "on"}
     if action == "brightness":
         number = int(value)
-        if 10 <= number <= 100:
+        if number in (15, 25, 45, 60, 80, 100):
             return {"state": True, "dimming": number}
     if action == "temperature":
         number = int(value)
-        if 2200 <= number <= 6500:
+        if number in (2200, 2700, 4000, 5000):
             return {"state": True, "temp": number}
-    if action == "color" and isinstance(value, str) and len(value) == 7 and value.startswith("#"):
-        red = int(value[1:3], 16)
-        green = int(value[3:5], 16)
-        blue = int(value[5:7], 16)
-        return {"state": True, "r": red, "g": green, "b": blue}
     raise ValueError("Unsupported command")
 
 
