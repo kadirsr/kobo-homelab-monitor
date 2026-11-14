@@ -1,0 +1,9 @@
+.env
+public/status-extra.json
+public/status-extra.json.tmp
+public/containers.json
+public/containers.json.tmp
+*.log
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Container Merkezi</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}body{padding:28px 30px 34px}table{border-collapse:collapse;width:100%}
+    .top td{vertical-align:top;padding-bottom:17px;border-bottom:4px solid #111}.brand{font-size:28px;font-weight:bold;letter-spacing:3px}.sub{display:block;margin-top:5px;font-size:11px;letter-spacing:2px;color:#555}.time{text-align:right;font-size:34px;font-weight:bold}.date{display:block;margin-top:4px;font-size:11px;letter-spacing:1px;color:#555}
+    .summary{table-layout:fixed;margin:18px 0;border:3px solid #111}.summary td{width:25%;padding:15px 16px;border-right:2px solid #111}.summary td:last-child{border-right:0}.label{display:block;font-size:9px;font-weight:bold;letter-spacing:1px;color:#555}.value{display:block;margin-top:5px;font-size:25px;font-weight:bold}
+    .section{margin:0 0 8px;font-size:12px;font-weight:bold;letter-spacing:2px}.list{border:3px solid #111}.list th{padding:10px 12px;border-bottom:3px solid #111;text-align:left;font-size:9px;letter-spacing:1px}.list td{padding:11px 12px;border-bottom:1px solid #777;vertical-align:top;font-size:11px}.list tr:last-child td{border-bottom:0}.name{font-size:14px;font-weight:bold}.image{display:block;margin-top:3px;font-size:9px;color:#555;word-break:break-all}.state{font-size:12px;font-weight:bold}.stopped{background:#eee}.ports{font-size:9px;word-break:break-all}
+    .bottom{margin-top:17px;border-top:3px solid #111}.bottom td{padding-top:15px;vertical-align:middle;font-size:11px;font-weight:bold}.bottom td:last-child{text-align:right}button{height:43px;padding:0 16px;border:3px solid #111;background:#fff;color:#111;font:bold 11px Arial}
+    @media(max-width:520px){body{padding:20px}.summary td{padding:11px 8px}.value{font-size:20px}.list td{padding:9px 8px}}
+  </style>
+</head>
+<body>
+  <table class="top"><tr><td><span class="brand">CONTAINERLAR</span><span class="sub">DOCKER OPERATIONS</span></td><td class="time"><span id="clock">--:--</span><span class="date" id="date">--</span></td></tr></table>
+  <table class="summary"><tr><td><span class="label">TOPLAM</span><span class="value" id="total">--</span></td><td><span class="label">RUNNING</span><span class="value" id="running">--</span></td><td><span class="label">STOPPED</span><span class="value" id="stopped">--</span></td><td><span class="label">UNHEALTHY</span><span class="value" id="unhealthy">--</span></td></tr></table>
+  <div class="section">ENVANTER</div>
+  <table class="list"><thead><tr><th style="width:34%">CONTAINER / IMAGE</th><th style="width:28%">DURUM</th><th>PORTLAR</th></tr></thead><tbody id="rows"><tr><td colspan="3">YÜKLENİYOR...</td></tr></tbody></table>
+  <table class="bottom"><tr><td>SON VERİ: <span id="updated">--:--</span> · <span id="countdown">60</span> SN</td><td><button type="button" onclick="location.href='/'">← ANA PANEL</button> <button type="button" onclick="loadContainers()">YENİLE</button></td></tr></table>
+  <script type="text/javascript">
+    var seconds=60;
+    function el(id){return document.getElementById(id)}
+    function esc(value){var node=document.createElement('div');node.appendChild(document.createTextNode(value==null?'':String(value)));return node.innerHTML}
+    function clock(){var now=new Date();el('clock').innerHTML=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);el('date').innerHTML=('0'+now.getDate()).slice(-2)+'.'+('0'+(now.getMonth()+1)).slice(-2)+'.'+now.getFullYear()}
+    function render(data){var items=data.containers||[];var running=0;var unhealthy=0;items.sort(function(a,b){var ar=a.state==='running'?1:0;var br=b.state==='running'?1:0;if(ar!==br){return ar-br}return String(a.name).localeCompare(String(b.name))});var html='';for(var i=0;i<items.length;i++){var item=items[i];var isRunning=item.state==='running';if(isRunning){running++}if(String(item.status).toLowerCase().indexOf('unhealthy')>=0){unhealthy++}html+='<tr class="'+(isRunning?'':'stopped')+'"><td><span class="name">'+esc(item.name)+'</span><span class="image">'+esc(item.image)+'</span></td><td><span class="state">'+esc(String(item.state||'--').toUpperCase())+'</span><br>'+esc(item.status||'--')+'</td><td class="ports">'+esc(item.ports||'—')+'</td></tr>'}el('rows').innerHTML=html||'<tr><td colspan="3">CONTAINER YOK</td></tr>';el('total').innerHTML=items.length;el('running').innerHTML=running;el('stopped').innerHTML=items.length-running;el('unhealthy').innerHTML=unhealthy;var stamp=new Date(data.updated_at||new Date().getTime());el('updated').innerHTML=('0'+stamp.getHours()).slice(-2)+':'+('0'+stamp.getMinutes()).slice(-2);seconds=60}
+    function fail(){el('rows').innerHTML='<tr><td colspan="3">VERİ ALINAMADI</td></tr>'}
+    function loadContainers(){var request=new XMLHttpRequest();request.open('GET','/containers.json?t='+new Date().getTime(),true);request.onreadystatechange=function(){if(request.readyState===4){if(request.status>=200&&request.status<300){try{render(JSON.parse(request.responseText))}catch(error){fail()}}else{fail()}}};request.send(null)}
+    function tick(){seconds--;if(seconds<0){seconds=60}el('countdown').innerHTML=seconds}
+    clock();loadContainers();setInterval(clock,30000);setInterval(tick,1000);setInterval(loadContainers,60000);
+  </script>
+</body>
+</html>

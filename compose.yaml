@@ -1,0 +1,29 @@
+name: kobo-homelab-monitor
+
+services:
+  dashboard:
+    image: nginx:1.28-alpine
+    container_name: kobo-homelab-monitor
+    restart: unless-stopped
+    ports:
+      - "${BIND_IP:?Set BIND_IP in .env}:${PORT:-8786}:80"
+    environment:
+      STATUS_UPSTREAM: "${STATUS_UPSTREAM:?Set STATUS_UPSTREAM in .env}"
+      NGINX_ENVSUBST_FILTER: "STATUS_UPSTREAM"
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true
+    name: "${DOCKER_NETWORK:?Set DOCKER_NETWORK in .env}"
+

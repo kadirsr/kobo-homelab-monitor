@@ -1,0 +1,4 @@
+# Replace SERVER_IP with the private address of your dashboard host.
+menu_item:main:Homelab Monitor:nickel_wifi:autoconnect
+chain_always:nickel_browser:modal:http://SERVER_IP:8786/
+
