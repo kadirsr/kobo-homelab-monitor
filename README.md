@@ -6,7 +6,7 @@ Use the monitoring view to check the server without opening a laptop, then switc
 
 ![Kobo Homelab Monitor preview](docs/preview.png)
 
-## Two experiences, one Kobo
+## Kobo and PC interfaces
 
 ### Homelab monitoring
 
@@ -28,6 +28,17 @@ Use the monitoring view to check the server without opening a laptop, then switc
 - Three large e-ink friendly choices instead of sliders and dense controls
 - Direct local UDP communication with the bulbs on port `38899`
 - WiZ bridge has no published host port and accepts only allow-listed commands and devices
+
+### WiZ Studio (PC)
+
+On a modern desktop browser, open `http://<dashboard-host>:8786/lights-desktop.html` on your trusted LAN (use your configured port if different). WiZ Studio uses the same local WiZ bridge as the Kobo page:
+
+- Control either bulb individually or both together.
+- Turn lights on or off, set brightness from 10–100%, and adjust white temperature from 2200–6500 K.
+- Pick a preset or custom RGB color on compatible bulbs, or apply the Reading, Night or Work preset.
+- Check live bulb status; it refreshes every 10 seconds.
+
+The Kobo page at `/lights.html` keeps its three simple room modes and does not require a modern browser.
 
 ## Architecture
 
@@ -97,7 +108,7 @@ Copy `nickelmenu.example` to the NickelMenu configuration directory and replace 
 - No credentials, tokens, hostnames or real IP addresses are committed.
 - `.env` and generated runtime JSON files are ignored by Git.
 - Nginx sets restrictive browser headers and disables caching.
-- The UI is read-only and exposes no Docker control endpoint.
+- The monitoring UI is read-only and exposes no Docker control endpoint. The light controls are not authenticated; anyone who can reach the dashboard can control the configured lights. Limit access to trusted devices and do not expose the dashboard publicly.
 - The WiZ page can change only the explicitly configured bulbs using a fixed command allow-list.
 - The WiZ bridge is reachable only from the shared internal Docker network; it publishes no host port.
 - Bind the service only to a trusted private interface and apply firewall rules appropriate to your network.
