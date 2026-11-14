@@ -22,6 +22,22 @@ services:
     networks:
       - monitoring
 
+  wiz-control:
+    build:
+      context: ./wiz-control
+    container_name: wiz-control
+    restart: unless-stopped
+    environment:
+      WIZ_LIGHTS: "${WIZ_LIGHTS:?Set WIZ_LIGHTS in .env}"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8090/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - monitoring
+
 networks:
   monitoring:
     external: true

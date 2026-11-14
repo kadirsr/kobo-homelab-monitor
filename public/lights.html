@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Okuma Işığı</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:#f7f7f3;color:#111;font-family:Arial,Helvetica,sans-serif}body{padding:24px 28px 30px}table{width:100%;border-collapse:collapse}
+    .header{border-bottom:4px solid #111}.header td{padding-bottom:14px;vertical-align:middle}.title{font-size:30px;font-weight:bold}.sub{display:block;margin-top:4px;font-size:10px;letter-spacing:2px;color:#555}.clock{text-align:right;font-size:32px;font-weight:bold}
+    .status{margin:16px 0;border:3px solid #111;background:#fff}.status td{width:50%;padding:15px 17px;border-right:2px solid #111}.status td:last-child{border-right:0}.light-name{font-size:11px;font-weight:bold;letter-spacing:1px}.light-state{display:block;margin-top:6px;font-size:24px;font-weight:bold}.light-detail{display:block;margin-top:5px;font-size:10px;color:#555}
+    .section{margin:16px 0 8px;font-size:11px;font-weight:bold;letter-spacing:2px}.targets,.buttons{table-layout:fixed}.targets td{padding:5px}.targets td:first-child,.buttons td:first-child{padding-left:0}.targets td:last-child,.buttons td:last-child{padding-right:0}.targets button{width:100%;height:48px}.targets .selected{background:#111;color:#fff}
+    .buttons td{width:25%;padding:5px}.buttons button{width:100%;height:74px;font-size:15px}.buttons.small button{height:57px;font-size:13px}.buttons.power td{width:50%}.buttons.power button{height:62px}
+    button{border:3px solid #111;background:#fff;color:#111;font-weight:bold;font-family:Arial}.primary{background:#111;color:#fff}.result{margin-top:16px;padding:13px 15px;border:3px solid #111;background:#fff;font-size:12px;font-weight:bold}.footer{margin-top:16px;border-top:3px solid #111}.footer td{padding-top:13px;font-size:10px;font-weight:bold}.footer td:last-child{text-align:right}.footer button{height:40px;padding:0 14px}
+    @media(max-width:520px){body{padding:18px}.title{font-size:25px}.buttons button{height:65px;font-size:13px}}
+  </style>
+</head>
+<body>
+  <table class="header"><tr><td><span class="title">Okuma Işığı</span><span class="sub">WIZ LOCAL CONTROL</span></td><td class="clock" id="clock">--:--</td></tr></table>
+  <table class="status"><tr><td><span class="light-name" id="name1">IŞIK 1</span><span class="light-state" id="state1">BEKLENİYOR</span><span class="light-detail" id="detail1">--</span></td><td><span class="light-name" id="name2">IŞIK 2</span><span class="light-state" id="state2">BEKLENİYOR</span><span class="light-detail" id="detail2">--</span></td></tr></table>
+
+  <div class="section">KONTROL EDİLECEK IŞIK</div>
+  <table class="targets"><tr><td><button id="target-all" class="selected" onclick="selectTarget('all')">İKİSİ BİRLİKTE</button></td><td><button id="target-light1" onclick="selectTarget('light1')">IŞIK 1</button></td><td><button id="target-light2" onclick="selectTarget('light2')">IŞIK 2</button></td></tr></table>
+
+  <div class="section">HAZIR MODLAR</div>
+  <table class="buttons"><tr><td><button class="primary" onclick="command('preset','reading')">OKUMA<br>2700K · %45</button></td><td><button onclick="command('preset','night')">GECE<br>2200K · %15</button></td><td><button onclick="command('preset','focus')">ODAK<br>4000K · %80</button></td><td><button onclick="command('preset','bright')">AYDINLIK<br>5000K · %100</button></td></tr></table>
+
+  <div class="section">PARLAKLIK</div>
+  <table class="buttons small"><tr><td><button onclick="command('brightness',25)">%25</button></td><td><button onclick="command('brightness',45)">%45</button></td><td><button onclick="command('brightness',60)">%60</button></td><td><button onclick="command('brightness',80)">%80</button></td></tr></table>
+
+  <div class="section">RENK SICAKLIĞI</div>
+  <table class="buttons small"><tr><td><button onclick="command('temperature',2200)">2200K</button></td><td><button onclick="command('temperature',2700)">2700K</button></td><td><button onclick="command('temperature',4000)">4000K</button></td><td><button onclick="command('temperature',5000)">5000K</button></td></tr></table>
+
+  <div class="section">GÜÇ</div>
+  <table class="buttons power"><tr><td><button class="primary" onclick="command('power','on')">AÇ</button></td><td><button onclick="command('power','off')">KAPAT</button></td></tr></table>
+
+  <div class="result" id="result">HAZIR</div>
+  <table class="footer"><tr><td>15 SN OTOMATİK DURUM KONTROLÜ</td><td><button onclick="location.href='/'">← ANA PANEL</button> <button onclick="loadStatus()">YENİLE</button></td></tr></table>
+
+  <script type="text/javascript">
+    var target='all';
+    function el(id){return document.getElementById(id)}
+    function clock(){var now=new Date();el('clock').innerHTML=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)}
+    function selectTarget(value){target=value;var ids=['all','light1','light2'];for(var i=0;i<ids.length;i++){el('target-'+ids[i]).className=ids[i]===value?'selected':''}}
+    function renderLight(light,index){el('name'+index).innerHTML=light.label||('IŞIK '+index);if(!light.reachable){el('state'+index).innerHTML='ULAŞILAMIYOR';el('detail'+index).innerHTML='--';return}el('state'+index).innerHTML=light.state?'AÇIK':'KAPALI';el('detail'+index).innerHTML=(light.dimming||0)+'% · '+(light.temperature||'--')+'K · '+(light.rssi||'--')+' dBm'}
+    function render(data){var lights=data.lights||[];if(lights[0]){renderLight(lights[0],1)}if(lights[1]){renderLight(lights[1],2)}}
+    function loadStatus(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/lights/status?t='+new Date().getTime(),true);xhr.onreadystatechange=function(){if(xhr.readyState===4){if(xhr.status>=200&&xhr.status<300){try{render(JSON.parse(xhr.responseText));el('result').innerHTML='DURUM GÜNCEL'}catch(error){el('result').innerHTML='YANIT OKUNAMADI'}}else{el('result').innerHTML='IŞIK SERVİSİNE ULAŞILAMIYOR'}}};xhr.send(null)}
+    function command(action,value){el('result').innerHTML='UYGULANIYOR...';var xhr=new XMLHttpRequest();xhr.open('POST','/api/lights/command',true);xhr.setRequestHeader('Content-Type','application/json');xhr.onreadystatechange=function(){if(xhr.readyState===4){if(xhr.status>=200&&xhr.status<300){try{var data=JSON.parse(xhr.responseText);el('result').innerHTML=data.ok?'TAMAMLANDI':'BAZI IŞIKLAR YANIT VERMEDİ'}catch(error){el('result').innerHTML='YANIT OKUNAMADI'}setTimeout(loadStatus,700)}else{el('result').innerHTML='KOMUT GÖNDERİLEMEDİ'}}};xhr.send(JSON.stringify({target:target,action:action,value:value}))}
+    clock();loadStatus();setInterval(clock,30000);setInterval(loadStatus,15000);
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Kobo Homelab Monitor
 
-An e-ink friendly, read-only homelab dashboard designed for Kobo's older WebKit browser. It displays host utilization, Prometheus target health, Docker inventory and a compact container detail page.
+An e-ink friendly homelab dashboard designed for Kobo's older WebKit browser. It displays host utilization, Prometheus target health and Docker inventory, and can control allow-listed WiZ lights over the local network.
 
 ![Kobo Homelab Monitor preview](docs/preview.png)
 
@@ -14,6 +14,8 @@ An e-ink friendly, read-only homelab dashboard designed for Kobo's older WebKit 
 - Automatic refresh every 60 seconds
 - ES5 and XMLHttpRequest; no frontend build step or external assets
 - Read-only interface with no container control actions
+- Local WiZ light status, power, brightness, white temperature and reading presets
+- WiZ bridge has no published host port and accepts only allow-listed commands and devices
 
 ## Requirements
 
@@ -22,6 +24,7 @@ An e-ink friendly, read-only homelab dashboard designed for Kobo's older WebKit 
 - Permission to run read-only Docker CLI commands
 - An existing HTTP endpoint returning the health schema below
 - A trusted LAN or private overlay network; do not expose this dashboard directly to the public internet
+- WiZ local communication enabled for bulbs already joined to the same LAN
 
 ## Quick start
 
@@ -32,6 +35,8 @@ chmod +x update-extra.sh
 ./update-extra.sh
 docker compose up -d
 ```
+
+`WIZ_LIGHTS` stays in the ignored `.env` file. Do not commit real device addresses.
 
 Refresh host and container metadata once per minute:
 
@@ -67,6 +72,8 @@ Copy `nickelmenu.example` to the NickelMenu configuration directory and replace 
 - `.env` and generated runtime JSON files are ignored by Git.
 - Nginx sets restrictive browser headers and disables caching.
 - The UI is read-only and exposes no Docker control endpoint.
+- The WiZ page can change only the explicitly configured bulbs using a fixed command allow-list.
+- The WiZ bridge is reachable only from the shared internal Docker network; it publishes no host port.
 - Bind the service only to a trusted private interface and apply firewall rules appropriate to your network.
 
 ## License
